@@ -1,0 +1,41 @@
+#include <Windows.h>
+#include <iostream>
+
+int main() {
+    // Simulate a right mouse click
+    mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+    Sleep(100); // Sleep for 100ms
+    mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+
+    // Move left by 600px
+    INPUT input;
+    input.type = INPUT_MOUSE;
+    input.mi.dwFlags = MOUSEEVENTF_MOVE;
+    input.mi.dx = -600;
+    SendInput(1, &input);
+
+    Sleep(500); // Sleep for 500ms
+
+    // Move right by 600px
+    input.mi.dx = 600;
+    SendInput(1, &input);
+
+    Sleep(1); // Sleep for 1ms
+
+    // Simulate a left mouse click
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+    Sleep(1); // Sleep for 1ms
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
+    // Move right by 600px
+    input.mi.dx = 600;
+    SendInput(1, &input);
+
+    Sleep(2000); // Sleep for 2000ms
+
+    // Move left by 600px
+    input.mi.dx = -600;
+    SendInput(1, &input);
+
+    return 0;
+}

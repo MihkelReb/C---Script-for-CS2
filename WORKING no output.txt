@@ -1,0 +1,226 @@
+// Simulate a right mouse click
+                INPUT input;
+                input.type = INPUT_MOUSE;
+                input.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+                SendInput(1, &input, sizeof(INPUT));
+
+                // Move left by 600px
+                input.mi.dwFlags = MOUSEEVENTF_MOVE;
+                input.mi.dx = -600;
+                SendInput(1, &input, sizeof(INPUT));
+
+                Sleep(500); // Sleep for 500ms
+
+                // Move right by 600px
+                input.mi.dx = 600;
+                SendInput(1, &input, sizeof(INPUT));
+
+                Sleep(1); // Sleep for 1ms
+
+                // Simulate a left mouse click
+                input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+                SendInput(1, &input, sizeof(INPUT));
+                input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+                SendInput(1, &input, sizeof(INPUT));
+
+                // Move right by 600px
+                input.mi.dx = 600;
+                SendInput(1, &input, sizeof(INPUT));
+
+                Sleep(2000); // Sleep for 2000ms
+
+                // Move left by 600px
+                input.mi.dx = -600;
+                SendInput(1, &input, sizeof(INPUT));
+
+
+#include <Windows.h>
+#include <iostream>
+#include <thread>
+#include <chrono>
+
+bool isCapsLockPressed() {
+    return GetKeyState(VK_CAPITAL) & 0x0001;
+}
+
+bool isCtrlPressed() {
+    return GetKeyState(VK_CONTROL) & 0x8000;
+}
+
+bool isPPressed() {
+    return GetAsyncKeyState('P') & 0x8000;
+}
+
+// Function to get the current time in microseconds using QueryPerformanceCounter
+__int64 GetCurrentTimeMicroseconds() {
+    LARGE_INTEGER frequency, current_time;
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&current_time);
+    return current_time.QuadPart * 1000000 / frequency.QuadPart;
+}
+
+// Function to print action time in microseconds
+void PrintActionTime(const char* actionName, __int64 start_time, __int64 end_time) {
+    __int64 elapsed_microseconds = end_time - start_time;
+    std::cout << actionName << " took " << elapsed_microseconds << " microseconds." << std::endl;
+}
+
+void runMacro() {
+    INPUT input; // Declare 'input' outside the loop
+
+    __int64 totalExecutionTime = 0; // Total execution time in microseconds
+
+    while (true) {
+        if (isPPressed()) {
+            std::cout << "P is pressed. Running the macro." << std::endl;
+
+            // Simulate a right mouse click
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+            SendInput(1, &input, sizeof(INPUT));
+            input.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+            SendInput(1, &input, sizeof(INPUT));
+            
+            // Sleep for 1000000 microseconds (1 second) using QueryPerformanceCounter
+            __int64 start_time = GetCurrentTimeMicroseconds();
+            while (true) {
+                __int64 end_time = GetCurrentTimeMicroseconds();
+                if (end_time - start_time >= 1000000) {
+                    break;
+                }
+            }
+
+            // Move left by 600px
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_MOVE;
+            input.mi.dx = -600; // Move left
+            SendInput(1, &input, sizeof(INPUT));
+            
+            // Sleep for 1000000 microseconds (1 second) using QueryPerformanceCounter
+            start_time = GetCurrentTimeMicroseconds();
+            while (true) {
+                __int64 end_time = GetCurrentTimeMicroseconds();
+                if (end_time - start_time >= 1000000) {
+                    break;
+                }
+            }
+
+            // Move right by 600px
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_MOVE;
+            input.mi.dx = 600; // Move right
+            SendInput(1, &input, sizeof(INPUT));
+            
+            // Sleep for 1000 microseconds (1 millisecond) using QueryPerformanceCounter
+            start_time = GetCurrentTimeMicroseconds();
+            while (true) {
+                __int64 end_time = GetCurrentTimeMicroseconds();
+                if (end_time - start_time >= 1000) {
+                    break;
+                }
+            }
+
+            // Simulate a left mouse click
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+            SendInput(1, &input, sizeof(INPUT));
+            input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+            SendInput(1, &input, sizeof(INPUT));
+
+             // Sleep for 1000 microseconds (1 millisecond) using QueryPerformanceCounter
+            start_time = GetCurrentTimeMicroseconds();
+            while (true) {
+                __int64 end_time = GetCurrentTimeMicroseconds();
+                if (end_time - start_time >= 1000) {
+                    break;
+                }
+            }
+
+            // Move right by 600px
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_MOVE;
+            input.mi.dx = 600; // Move right
+            SendInput(1, &input, sizeof(INPUT));
+            
+            // Sleep for 2500000 microseconds (2.5 seconds) using QueryPerformanceCounter
+            start_time = GetCurrentTimeMicroseconds();
+            while (true) {
+                __int64 end_time = GetCurrentTimeMicroseconds();
+                if (end_time - start_time >= 2500000) {
+                    break;
+                }
+            }
+
+            // Move left by 600px
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = MOUSEEVENTF_MOVE;
+            input.mi.dx = -600; // Move left
+            SendInput(1, &input, sizeof(INPUT));
+
+            std::cout << "Macro execution completed." << std::endl;
+
+            // Calculate the action time and add it to the total execution time
+            totalExecutionTime += GetCurrentTimeMicroseconds() - start_time;
+        }
+
+        if (isCtrlPressed() && isPPressed()) {
+            std::cout << "Ctrl + P is pressed. Exiting the program." << std::endl;
+            
+            // Print the total execution time in milliseconds
+            std::cout << "Total execution time: " << totalExecutionTime / 1000 << " milliseconds." << std::endl;
+            
+            break; // Exit the loop when Ctrl + P is pressed
+        }
+
+        // Sleep to avoid high CPU usage
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+int main() {
+    std::cout << "Monitoring P key. Press Ctrl+P to exit or P to trigger the macro." << std::endl;
+
+    // Call the function to run the macro
+    runMacro();
+
+    return 0;
+}
+
+
+
+
+
+The 3 events should be as follows:
+	Event 1: CS2 (keybind "7")
+		Right click event, wait 1s, left move event, wait 1s, right move event, wait 1ms (using QueryPerformanceCounter), left click event, right move event, wait 3s, left move event.
+	
+	Event 2: Diabotiacl (keybind "8")
+		Right click event, wait 1s, left move event, wait 1s, right move event, left click event, right move event, wait 3s, left move event.
+	
+	Event 3: CSGO (keybind "9")
+		Right click event, wait 1s, left move event, wait 1s, right move event, left click event, wait 1ms (using QueryPerformanceCounter), right move event, wait 3s, left move event.
+
+
+
+
+Can you modify that exact code to be more compact, so it will call upon these set functions of move left, move right, right clickdown/clickup, left clickdown/clickup with their corresponsing sleep timers in their current form.
+
+I would then like to have 3 different keys for triggering different ways to run the code ( "7", "8", "9")
+
+one with no sleep timers on line 78-85 and 95-101, called Diabotical. (key 8)
+	so this will do the right click event, wait 1s, move left, wait 1s, move right, left click event, move right, wait 3s, move left
+
+one with no sleep timer on line 78-85, called CSGO. (key 9)
+	so this will do the right click event, wait 1s, move left, wait 1s, move right, wait 1ms (using QueryPerformanceCounter), left click event, move right, wait 3s, move left
+
+one with no sleep timer on 95-101, called CS2. (key 7)
+	so this will do the right click event, wait 1s, move left, wait 1s, move right, left click event, wait 1ms (using QueryPerformanceCounter),  move right, wait 3s, move left
+
+I also want in any case console outputs for events that currently take place between lines 42-70 (in milliseconds), 72-107 (in micro seconds) 109-122 (in milliseconds), and the total execution time in ms in the end.
+
+I want the program to then loop back to the beginning so it does not close and I can run it again if needed.
+
+
+I want it to have 3 seperate keys for executing 
